@@ -1,70 +1,110 @@
-## WHAT IS QLOAPPS
+# What is QloApps?
+QloApps is a free, fully customizable open-source hotel management and reservation system. It enables users to launch a user-friendly hotel booking website and manage both online and offline bookings. Suitable for small independent hotels as well as large hotel chains, QloApps serves as a comprehensive solution for all hotel business needs.
 
-Qloapps is an open source, free and customizable online reservation system. You can launch a userfriendly site and can manage online as well as offline bookings. Using this you can easily launch your hotel booking website and even manage your offline booking too. This package is developed on top of Prestashop 1.6.
+# How to Deploy QloApps with Docker
+## Prerequisites
+Before proceeding, ensure you have the latest version of Docker installed along with its dependencies, as per your operating system. For detailed instructions, refer to the Docker installation guide.
 
-## DOCKERIZING QLOAPPS
+## The QloApps Docker image architecture includes:
 
-Docker is an open-source project that can be integrated with almost all the applications allowing scope of isolation and flexibility. It can be integrated with  Qloapps.
+Ubuntu 20.04
+MySQL Server 5.7
+PHP 7.4
+Additionally, verify that your user has the necessary privileges to run Docker commands.
 
-## PREREQUISITES
+## Important Note
+The MySQL root password, database name, and SSH user password are not preset. Users must provide these details as arguments when running the Docker image.
 
-> Install lastest avaiable Docker version and its dependencies according to your OS version. Refer to link https://docs.docker.com/install/linux/docker-ce/ubuntu/#prerequisites. 
+The default SSH user created during the image build is 'qloapps.' You can modify the user argument in the Dockerfile and rebuild the image to suit your requirements.
 
-> Check if your user has access privileges to run docker commands.
+# Procedure
+# Step 1: Pull the Docker Image
+Begin by pulling the Docker image from Docker Hub with the following command:
+```
+docker pull webkul/qloapps_docker:latest
+```
 
-#### NOTE TO THE USER
+# Step 2: Run the Container
+After pulling the image, run the container, specifying the required ports and arguments:
 
-> Mysql root password, Mysql Database name and SSH user password is not set. Users have to pass *Mysql root password, database name, and SSH user password* as arguments while running the docker image.
+```
+docker run -tidp 80:80 -p 3306:3306 -p 2222:22 --name qloappsv161 -e USER_PASSWORD=qloappsuserpassword -e MYSQL_ROOT_PASSWORD=myrootpassword -e MYSQL_DATABASE=qlo161 webkul/qloapps_docker:latest
+```
+**Note:** Ensure that no other services are using ports 80, 2222, and 3306. If these ports are occupied, specify alternative ports as needed.
 
-> Default SSH user is created as "qloapps" while building this image. You can change user argument in Dockerfile and rebuild the docker image for your own use.
+In this command:
 
-> 
+Host port 80 is mapped to Docker port 80 (Apache).
+Host port 3306 is mapped to Docker port 3306 (MySQL).
+SSH port 2222 is mapped to Docker port 22 (SSH server).
+Please make sure that no other services are running on these host ports.
 
+## Important: Replace MYSQL_ROOT_PASSWORD, MYSQL_DATABASE, and USER_PASSWORD with your own values in the command.
 
-## DOCKERIZING QLOAPPS
+# Step 3: Verify the Running Container
+To check if your container is running, use the command:
 
-In the dockerized Qloapps architecture, we are using:
+```
+docker ps
+```
 
-> Ubuntu 20.04
+You should see the container named 'qloappsv161'.
 
-> Mysql Server 8.0
+Next, open your browser and navigate to your server's IP address or domain name to initiate the QloApps installation process.
 
-> PHP 7.4
+After completing the installation, remove the '/install' directory from the server root directory inside the container by executing:
 
-> SSH Server
+```
+docker exec -i qloappsv161 rm -rf /home/qloapps/www/QloApps/install
+```
 
-To begin with:
+# Step 4: Rename the Admin Directory
+Upon accessing the back office URL, you will be prompted to rename your admin directory. You can do this by entering the running container and renaming the directory as needed, for example, to "adminhtml":
 
-1. Pull qloapps docker image from docker hub by running command "docker pull webkul/qloapps:latest".
+```
+docker exec -i qloappsv161 mv /home/qloapps/www/QloApps/admin /home/qloapps/www/QloApps/adminhtml
+```
 
-2. After pulling the image, run your qloapps container by specifying ports and arguments as: 
+# Step 5: Access QloApps via SSH
+To access your QloApps files and directories, SSH into your Docker container with the following command:
 
-> docker run -tidp 80:80 -p 3306:3306 -p 2222:22 --name qloappsv161 -e USER_PASSWORD=qloappsuserpassword -e MYSQL_ROOT_PASSWORD=myrootpassword -e MYSQL_DATABASE=qlo161 webkul/qloapps_docker:latest
+```
+ssh qloapps@your_ip -p 2222
+```
 
-3. In the above command, your Host port 80 is linked with the docker port 80 running apache and Host port 3306 is linked with the docker port 3306 running MySQL, you can change the ports of your Host as per your requirements. Also, your SSH port 2222 is mapped with docker port 22 running SSH server. Please ensure that no other services are running on these host ports.
+# --For Older Versions (>=1.6.0)--
 
-4. Mention your mysql root password, database name, 'qloapps' user password in arguments MYSQL_ROOT_PASSWORD, MYSQL_DATABASE and 
-USER_PASSWORD respectively.
+To deploy older versions, replace qloappsv161 with the desired version, such as qloappsv160 or qloappsv159. The document root path will be /home/qloapps/www/hotelcommerce/.
 
-5. Check your running container using command *docker ps*. It will display you a container running with name qloappsv161.
+## Example
+To pull a specific version, select the version from Docker Hub tags and use:
 
-6. Now go to your browser and hit your IP or domain name and start qloapps installation process
+```
+docker pull webkul/qloapps_docker:[Version]
+```
 
-7. After qloapps installation, remove "install" directory from server root directory inside the container. Run command:
+After pulling the image, run the container by specifying the version in the command:
 
-> docker exec -i qloappsv161 rm -rf /home/qloapps/www/QloApps/install .
+```
+docker run -tidp 80:80 -p 3306:3306 -p 2222:22 --name qloappsv161 -e USER_PASSWORD=qloappsuserpassword -e MYSQL_ROOT_PASSWORD=myrootpassword -e MYSQL_DATABASE=qlo161 webkul/qloapps_docker:[Version]
+```
 
-8. On clicking on backoffice URL, you will be promped to rename your backoffice URL. Go to running docker container and change the name of admin directory as mentioned.
+Then, follow the installation process as outlined previously.
 
-9. To access your qloapps files and directories, you can SSH in your docker container as:
+After installation, remove the '/install' directory:
 
-> ssh qloapps@mention_your_ip -p 2222
+```
+docker exec -i [Your_container_name] rm -rf /home/qloapps/www/hotelcommerce/install
+```
 
-Note -: If you are running any other services on your host at port 80, 22 and 3306 then you have to mention other ports in step 2.
+Rename the admin directory as needed:
 
-## GETTING SUPPORT
-
-If you have any issues, contact us at support@qloapps.com or raise ticket at https://webkul.uvdesk.com/
-
+```
+docker exec -i [Your_container_name] mv /home/qloapps/www/QloApps/admin /home/qloapps/www/QloApps/adminhtml
+```
+And rest remain the same as previous.
+ 
+# Getting Support
+If you encounter any issues or have questions, please contact us at support@qloapps.com or raise a ticket at QloApps Support.
 
 Thank you.
