@@ -8,7 +8,7 @@ Before proceeding, ensure you have the latest version of Docker installed along 
 ## The QloApps Docker image architecture includes:
 
 Ubuntu 20.04
-MySQL Server 5.7
+MySQL Server 8.0
 PHP 7.4
 Additionally, verify that your user has the necessary privileges to run Docker commands.
 
